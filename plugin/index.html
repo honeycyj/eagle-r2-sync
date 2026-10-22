@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' file:; script-src 'self'; style-src 'self'; img-src 'self' blob: data: file:; connect-src https://*.r2.cloudflarestorage.com https://api.tinify.com">
+<title>R2 发布</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="settings.css">
+</head>
+<body>
+<main id="content" class="settings">
+  <section aria-labelledby="foldersTitle">
+    <div class="section-title"><h2 id="foldersTitle" title="包含子文件夹；点击标签名称启停，× 移除。移除后保留云端文件。">同步文件夹 <span id="folderCount" class="count"></span></h2></div>
+    <div id="folders" class="folder-list" aria-label="已添加的同步文件夹"><button id="openPicker" class="add-folder" aria-label="添加文件夹" title="添加文件夹" aria-haspopup="dialog" aria-controls="folderPicker">＋</button></div>
+    <div id="undoNotice" class="undo-notice" hidden><span id="removedName"></span><button id="undoRemove" class="text-button">撤销移除</button></div>
+  </section>
+
+  <section aria-labelledby="processingTitle">
+    <h2 id="processingTitle" title="图片保留原始尺寸，压缩副本上传后释放；视频原格式上传。">图片处理</h2>
+    <div class="field-grid">
+      <label class="field">压缩方式<select id="provider"><option value="local">本地压缩</option><option value="tinypng">TinyPNG</option></select></label>
+      <label id="presetRow" class="field">压缩档位<select id="preset"><option value="original">不压缩 · 原格式</option><option value="light">轻度 · 优先画质</option><option value="standard">标准 · 推荐</option><option value="strong">较高压缩 · 优先体积</option></select></label>
+      <div id="serviceRow" class="field" hidden><label for="serviceSettings">服务设置</label><button id="serviceSettings" class="service-control" aria-haspopup="dialog">配置 TinyPNG</button></div>
+    </div>
+  </section>
+
+  <div id="connection" class="upload-row">
+    <div class="upload-summary"><span class="connection-title">上传服务</span><span class="upload-provider">Cloudflare R2</span><span id="connectionSummary" class="hint"></span></div>
+    <button id="openConnection" class="outline small" aria-haspopup="dialog" aria-controls="r2Settings">配置</button>
+    <span id="credentialState" hidden></span>
+  </div>
+
+  <button id="openPending" class="text-button pending-entry" aria-haspopup="dialog" hidden></button>
+  <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+  <div class="actions"><span id="dirty" class="muted" aria-live="polite"></span><button id="toggle" class="outline">启用同步</button><button id="save" class="primary" disabled>保存设置</button></div>
+  <div id="uploadFailure" class="notice upload-failure" role="alert" hidden><span id="summary"></span><button id="scan" class="text-button">重试失败项</button></div>
+</main>
+<dialog id="folderPicker" class="settings service-dialog folder-dialog" aria-labelledby="folderDialogTitle">
+  <div class="dialog-heading"><h2 id="folderDialogTitle">选择同步文件夹</h2><button id="closePicker" class="dialog-close" aria-label="关闭文件夹选择器">×</button></div>
+  <button id="useSelectedFolders" class="text-button native-selection">添加 Eagle 当前所选</button>
+  <div class="search-wrap"><input id="folderSearch" type="search" placeholder="搜索文件夹…" aria-label="搜索文件夹" autocomplete="off"></div>
+  <div id="folderChoices" class="folder-choices" role="group" aria-label="可添加的文件夹"></div>
+  <p id="folderError" class="service-error" role="alert" hidden></p>
+  <div class="picker-actions"><span id="pickerCount" class="muted" aria-live="polite"></span><button id="cancelPicker" class="outline small">取消</button><button id="bind" class="primary small" disabled>添加所选</button></div>
+</dialog>
+<dialog id="r2Settings" class="settings service-dialog upload-dialog" aria-labelledby="r2DialogTitle">
+  <div class="dialog-heading"><h2 id="r2DialogTitle">Cloudflare R2 设置</h2><button id="closeConnection" class="dialog-close" aria-label="关闭上传设置">×</button></div>
+  <p class="hint">保存主面板设置后生效。</p>
+    <div class="connection-body">
+      <div class="field-grid">
+        <label class="field">公开域名<input id="domain" placeholder="https://img.example.com" spellcheck="false"></label>
+        <label class="field">发布目录<input id="prefix" placeholder="eagle"></label>
+        <label class="field">桶名<input id="bucket" spellcheck="false"></label>
+        <label class="field">Account ID<input id="account" spellcheck="false" autocomplete="off"></label>
+      </div>
+      <label class="field" for="access">Access Key ID</label><div class="secret-field"><input id="access" type="password" autocomplete="off"><button id="showAccess" type="button" aria-label="显示 Access Key ID">显示</button></div>
+      <label class="field" for="secret">Secret Access Key</label><div class="secret-field"><input id="secret" type="password" autocomplete="new-password"><button id="showSecret" type="button" aria-label="显示 Secret Access Key">显示</button></div>
+      <p id="r2KeyHint" class="hint">输入两项密钥后保存到本机钥匙串。</p>
+      <label class="consent mirror-option"><input id="mirrorEnabled" type="checkbox">同步删除到云端（保留 7 天）</label><p class="hint">删除或移出所有同步目录后开始计时；暂停或取消绑定不清空云端。删除后原链接可能失效。</p>
+      <div class="credential-actions"><button id="changeCredentials" class="text-button">更换密钥</button><button id="forget" class="text-button danger">移除本机凭据</button></div>
+    </div>
+  <p id="r2Error" class="service-error" role="alert" hidden></p>
+  <div class="dialog-actions"><button id="cancelConnection" class="outline">取消</button><button id="applyConnection" class="primary">完成</button></div>
+</dialog>
+<dialog id="pendingDialog" class="settings service-dialog pending-dialog" aria-labelledby="pendingTitle">
+  <div class="dialog-heading"><h2 id="pendingTitle">待删除的云端文件</h2><button id="closePending" class="dialog-close" aria-label="关闭待删除列表">×</button></div>
+  <p class="hint">缓冲期内文件和链接保留。恢复原 Eagle 项目会取消删除；重新导入为新项目会单独上传。</p>
+  <div id="pendingList" class="pending-list"></div>
+  <div class="dialog-actions"><button id="donePending" class="primary">完成</button></div>
+</dialog>
+<dialog id="tinySettings" class="settings service-dialog" aria-labelledby="serviceDialogTitle" aria-describedby="serviceDialogHint">
+  <div class="dialog-heading"><h2 id="serviceDialogTitle">TinyPNG 设置</h2><button id="closeService" class="dialog-close" aria-label="关闭服务设置">×</button></div>
+  <p id="serviceDialogHint" class="hint">填写服务密钥，保存主面板设置后生效。</p>
+  <label class="field" for="tinyKey">API Key</label>
+  <div class="secret-field"><input id="tinyKey" type="password" autocomplete="new-password" aria-label="TinyPNG API Key"><button id="showTiny" type="button" aria-label="显示 TinyPNG API Key">显示</button></div>
+  <label class="consent"><input id="tinyConsent" type="checkbox">允许将图片发送至 TinyPNG 压缩</label>
+  <p class="hint">会消耗该服务额度，可能产生费用。</p>
+  <p id="serviceError" class="service-error" role="alert" hidden></p>
+  <div class="dialog-actions"><button id="cancelService" class="outline">取消</button><button id="applyService" class="primary">完成</button></div>
+</dialog>
+<script src="main.js"></script>
+</body>
+</html>

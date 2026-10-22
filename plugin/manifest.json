@@ -1,0 +1,31 @@
+{
+  "id": "HONEYR2SYNC001",
+  "version": "0.6.3",
+  "platform": "mac",
+  "arch": "all",
+  "name": "R2 发布",
+  "logo": "/logo.png",
+  "keywords": [
+    "R2",
+    "WebP",
+    "同步"
+  ],
+  "devTools": false,
+  "main": {
+    "url": "index.html",
+    "width": 520,
+    "height": 550,
+    "serviceMode": true,
+    "minWidth": 420,
+    "minHeight": 320
+  },
+  "preview": {
+    "jpg,jpeg,png,webp,bmp,mp4,m4v,mov,webm,mkv,avi,mpeg,mpg,3gp,ogv,ts,mts,m2ts,wmv,flv": {
+      "inspector": {
+        "path": "inspector.html",
+        "height": 78,
+        "multiSelect": false
+      }
+    }
+  }
+}

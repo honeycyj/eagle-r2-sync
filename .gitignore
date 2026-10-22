@@ -1,0 +1,15 @@
+node_modules/
+__pycache__/
+.DS_Store
+.env
+.env.*
+!.env.example
+config.json
+state-*.json
+window-state.json
+*-request.json
+*.log
+*.eagleplugin
+*.zip
+dist/
+plugin/smoke.html

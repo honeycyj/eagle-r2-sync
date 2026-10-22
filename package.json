@@ -1,0 +1,16 @@
+{
+  "name": "eagle-r2-sync",
+  "version": "0.6.3",
+  "private": true,
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "test:browser": "electron test/browser-smoke.cjs",
+    "test:package": "python3 -m unittest discover -s test -p \"test_*.py\""
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "electron": "22.3.27"
+  }
+}
